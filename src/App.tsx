@@ -1,26 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useReducer } from "react";
+import BottomNavBar from "./components/BottomNavBar";
+import CalendarView from "./components/CalendarView";
+import NotificationSetting from "./components/NotificationSettings";
+import UpcomingEvents from "./components/UpcomingEvents";
+import { iAction, iState } from "./interfaces";
 
-function App() {
+const initialState: iState = {
+  tab: 1,
+};
+
+const SET_TAB_IDX = "SET_TAB_IDX";
+
+const reducer = (state: iState, { type, payload }: iAction) => {
+  let nextState = Object.assign({}, state);
+
+  switch (type) {
+    case SET_TAB_IDX:
+      nextState.tab = payload;
+      return nextState;
+    default:
+      return state;
+  }
+};
+
+const App = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const setTabIdx = (payload: number) =>
+    dispatch({
+      type: SET_TAB_IDX,
+      payload,
+    });
+
+  const pageComponent = () => {
+    switch (state.tab) {
+      case 0:
+        return <CalendarView />;
+      case 1:
+        return <UpcomingEvents />;
+      case 2:
+        return <NotificationSetting />;
+      default:
+        throw new Error("Invalid tab state");
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <section>{pageComponent()}</section>
+      <BottomNavBar setTabIdx={setTabIdx} />
+    </>
   );
-}
+};
 
 export default App;
